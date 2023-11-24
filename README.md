@@ -26,8 +26,11 @@ plotly dash 를 활용해 admin page 를 개발해 본다.
   fly apps list
   fly apps restart
   
-  # secret variable
-  fly secrets set DATABASE_URL=postgres://example.com/mydb 
+  # console terminal
+  flyctl ssh console
+  
+  # secrets
+  fly secrets set DATABASE_URL=postgres://example.com/mydb
   ```
 
 * 배포후 https://fly.io/dashboard 에서 app 확인이 가능하다.
