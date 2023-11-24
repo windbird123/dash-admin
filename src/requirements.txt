@@ -1,0 +1,10 @@
+gunicorn==21.2.0
+dash==2.10.1
+dash_bootstrap_components==1.4.1
+pydantic==2.3.0
+Requests==2.31.0
+pandas==2.0.2
+duckdb==0.8.1
+python-dotenv==1.0.0
+loguru==0.7.2
+
