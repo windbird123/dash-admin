@@ -3,6 +3,14 @@ plotly dash 를 활용해 admin page 를 개발해 본다.
 상세한 내용은 https://wefree.tistory.com/316 참고한다.
 
 
+## 실행 환경 만들기
+#### Local (Dev)
+* `.env_dev` 파일을 `.env` 이름으로 복사
+* `.env` 파일을 열어 본인 `tistory` 의 `APP_ID`,`SECRET_KEY` 등의 정보를 넣는다.
+#### Prod
+* `.env_prod` 파일에 필요한 정보를 수정한다. (`APP_ID`, `SECRET_KEY` 는 기입하지 않는다) 
+* `APP_ID`, `SECRET_KEY` 등의 정보는 배포 시스템의 환경 변수로 등록한다. 예) https://fly.io/docs/js/the-basics/secrets/ 
+
 ## sidebar 에 메뉴 추가 방법
 * `pages` 하위 디렉토리에 파일 추가
 * `dash.register_page()` 에 아래 항목 지정
