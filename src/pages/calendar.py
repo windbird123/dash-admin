@@ -3,13 +3,12 @@ from urllib import parse
 import dash
 from dash import html, dcc, callback, Input, Output
 
-import ids
-
 dash.register_page(__name__, name='Calendar', order=3, is_menu=True, icon='fas fa-calendar-alt me-2')
 
 
 def layout(city: str = 'Montreal') -> html.Div:
     return html.Div([
+        dcc.Location(id='location_calendar', refresh=True),
         html.H1('This is our Analytics page'),
         html.Div([
             "Select a city: ",
@@ -20,22 +19,13 @@ def layout(city: str = 'Montreal') -> html.Div:
             )
         ]),
         html.Br(),
-        html.Div(id='analytics-output'),
+        html.Div(children=f"You selected: {city}"),
     ])
 
 
 @callback(
-    Output('analytics-output', 'children'),
+    Output('location_calendar', 'search'),
     Input('analytics-input', 'value')
-)
-def update_city_selected(input_value):
-    return f'You selected: {input_value}'
-
-
-@callback(
-    Output(ids.URL, 'search', allow_duplicate=True),
-    Input('analytics-input', 'value'),
-    prevent_initial_call=True
 )
 def update_url_query_param(input_value):
     return f"?city={parse.quote(input_value, encoding='utf-8')}"

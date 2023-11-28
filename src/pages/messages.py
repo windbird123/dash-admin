@@ -1,17 +1,15 @@
 from urllib import parse
 
-import dash_bootstrap_components as dbc
-from dash import Input, Output, State, dcc, html, Dash, callback
-
 import dash
-
-import ids
+import dash_bootstrap_components as dbc
+from dash import Input, Output, State, dcc, html, callback
 
 dash.register_page(__name__, name='Messages', order=4, is_menu=True, icon='fas fa-envelope-open-text me-2')
 
 
 def layout(input: str = '') -> html.Div:
-    return html.Div(
+    return html.Div([
+        dcc.Location(id='location', refresh=False),
         dbc.Row(
             [
                 dbc.Col(
@@ -26,26 +24,17 @@ def layout(input: str = '') -> html.Div:
                 ),
                 dbc.Col(
                     [
-                        html.P(id="output")
+                        html.P(children=input)
                     ]
                 ),
             ],
             className="g-4"
         )
-    )
+    ])
 
 
 @callback(
-    Output("output", "children"),
-    Input("click", "n_clicks"),
-    State("input", "value")
-)
-def output_text(click, value):
-    return value
-
-
-@callback(
-    Output(ids.URL, 'search', allow_duplicate=True),
+    Output('location', 'search'),
     Input('click', 'n_clicks'),
     State("input", "value"),
     prevent_initial_call=True

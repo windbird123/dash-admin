@@ -2,11 +2,9 @@ import os
 
 import dash
 import dash_bootstrap_components as dbc
-from dash import html, dcc, Dash
+from dash import html, Dash
 from dotenv import load_dotenv
 from loguru import logger
-
-import ids
 
 
 def create_app() -> Dash:
@@ -62,7 +60,6 @@ def create_app() -> Dash:
     )
 
     app.layout = html.Div([
-        dcc.Location(id=ids.URL, refresh=False),
         sidebar,
         content
     ])

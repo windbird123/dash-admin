@@ -10,8 +10,9 @@ import duckdb
 import pandas as pd
 import plotly.express as px
 import requests
-from dash import Input, Output, State, dcc, html, callback, ctx, dash_table
+from dash import Input, Output, dcc, html, callback, dash_table
 from loguru import logger
+from plotly.graph_objs import Figure
 from pydantic import BaseModel
 
 BLOG_NAME = os.getenv("BLOG_NAME")
@@ -53,70 +54,112 @@ post_df: pd.DataFrame = pd.read_csv('data/post_df.csv', parse_dates=['date'])
 def layout(code: str = '') -> html.Div:
     """code 값이 직접적으로 사용되지는 않지만, tistory 인증시 code 값이 전달되어 param 으로 필요함"""
 
-    # post 단위 (daily)
-    daily_fig = px.scatter(post_df, x='date', y='main_category', color='main_category',
-                           hover_data=['title', 'post_url'],
-                           title='날짜별 블로그 글')
+    # 콜백을 사용하지 않고 location 을 직접 업데이트해 리다이렉트하기 위함
+    location = dcc.Location(id='location_tistory', refresh=True)
+    global post_df
 
-    # monthly
+    if code:
+        post_df = get_post_df(code)  # 인증 코드를 받았을 경우 global post_df 를 업데이트 함
+        location.href = CALLBACK_URL  # /tistory 로 redirect (code param 제거를 위해)
+        # post_df.to_csv('data/post_df.csv')
+
+    return html.Div(
+        [
+            location,
+            html.H1("wefree.tistory.com 통계"),
+            dbc.Button("update statistics (admin only)", id="update_data", color="primary", n_clicks=0),
+            dcc.Graph(id='monthly_fig', figure=build_monthly_fig(post_df)),
+            dcc.Graph(id='daily_fig', figure=build_daily_fig(post_df)),
+            build_table(post_df)
+        ]
+    )
+
+
+def build_daily_fig(df: pd.DataFrame) -> Figure:
+    return px.scatter(
+        df,
+        x='date',
+        y='main_category',
+        color='main_category',
+        hover_data=['title', 'post_url'],
+        title='날짜별 블로그 글'
+    )
+
+
+def build_monthly_fig(df: pd.DataFrame) -> Figure:
     df = post_df.copy()
     df = duckdb.sql("""select *, strftime(date, '%Y-%m') as year_month from df""").df()
     # df["year_month"] = df["date"].dt.strftime('%Y-%m')
 
     monthly_df = df[['year_month', 'main_category']].value_counts().reset_index()
-    monthly_fig = px.bar(monthly_df, x='year_month', y='count', color='main_category', title='월별 블로그 수')
+    return px.bar(
+        monthly_df,
+        x='year_month',
+        y='count',
+        color='main_category',
+        title='월별 블로그 수'
+    )
 
-    # data table
+
+# client 에서 전체 데이터를 받아 paging & sort .. ==> native
+# server 에서 특정 페이지에 해당하는 일부 데이터만 보내 줄려면 ==> custom + callback 구현
+def build_table(df: pd.DataFrame) -> dash_table.DataTable:
     table_df = duckdb.sql(
-        """select date, main_category, title, concat('[', post_url, ']', '(', post_url, ')') post_url from post_df"""
+        """select date, main_category, title, concat('[', post_url, ']', '(', post_url, ')') post_url from df"""
     ).df()
 
-    return html.Div(
-        [
-            dcc.Location(id='tistory_url', refresh=True),
-            html.H1("wefree.tistory.com 통계"),
-            dcc.Graph(id='monthly_fig', figure=monthly_fig),
-            dcc.Graph(id='daily_fig', figure=daily_fig),
-
-            # client 에서 전체 데이터를 받아 paging & sort .. ==> native
-            # server 에서 특정 페이지에 해당하는 일부 데이터만 보내 줄려면 ==> custom + callback 구현
-            dash_table.DataTable(
-                id='table-paging-and-sorting',
-                page_current=0,
-                page_size=10,
-                page_action='native',
-                filter_action='native',
-                sort_action='native',
-                sort_mode='single',
-                sort_by=[],
-                export_format='csv',
-                data=table_df.to_dict('records'),
-                columns=[
-                    {"name": "날짜", "id": "date"},
-                    {"name": "분류", "id": "main_category"},
-                    {"name": "URL", "id": "post_url", "type": "text", "presentation": "markdown"},
-                    {"name": "제목", "id": "title"},
-                ],
-                style_cell={'textAlign': 'left'},
-                style_data={
-                    'color': 'black',
-                    'backgroundColor': 'white'
-                },
-                style_data_conditional=[
-                    {
-                        'if': {'row_index': 'odd'},
-                        'backgroundColor': 'rgb(220, 220, 220)',
-                    }
-                ],
-                style_header={
-                    'backgroundColor': 'rgb(150, 150, 150)',
-                    'color': 'black',
-                    'fontWeight': 'bold'
-                }
-            ),
-            dbc.Button("update statistics (admin only)", id="update_data", color="primary", n_clicks=0)
-        ]
+    return dash_table.DataTable(
+        id='table-paging-and-sorting',
+        page_current=0,
+        page_size=10,
+        page_action='native',
+        filter_action='native',
+        sort_action='native',
+        sort_mode='single',
+        sort_by=[],
+        export_format='csv',
+        data=table_df.to_dict('records'),
+        columns=[
+            {"name": "날짜", "id": "date"},
+            {"name": "분류", "id": "main_category"},
+            {"name": "URL", "id": "post_url", "type": "text", "presentation": "markdown"},
+            {"name": "제목", "id": "title"},
+        ],
+        style_cell={'textAlign': 'left'},
+        style_data={
+            'color': 'black',
+            'backgroundColor': 'white'
+        },
+        style_data_conditional=[
+            {
+                'if': {'row_index': 'odd'},
+                'backgroundColor': 'rgb(220, 220, 220)',
+            }
+        ],
+        style_header={
+            'backgroundColor': 'rgb(150, 150, 150)',
+            'color': 'black',
+            'fontWeight': 'bold'
+        }
     )
+
+
+def get_post_df(code) -> pd.DataFrame:
+    """code 값을 이용해 전체 블로그 데이터를 읽어 옴"""
+
+    access_token = _get_access_token(code)
+    logger.info(f"{access_token=}")
+    total = get_total_count(access_token)
+    logger.info(f"{total=}")
+
+    # category = '0' 은 공지글로 BlogCategory 에 필요한 모든 속성을 가져올 수 없어 처리에서 제외한다.
+    all_posts: list[BlogPost] = get_all_posts(access_token, total)
+    all_posts: list[BlogPost] = [post for post in all_posts if post.category_id != '0']
+
+    categories: list[BlogCategory] = get_categories(access_token)  # category_id = '0' 에 대한 정보는 없다.
+    my_posts = make_my_posts(all_posts, categories)
+
+    return pd.DataFrame([my_post.model_dump() for my_post in my_posts])
 
 
 def _get_access_token(code: str) -> str:
@@ -151,7 +194,8 @@ def get_posts(access_token: str, page: int) -> list[BlogPost]:
             post_url=post["postUrl"],
             category_id=post["categoryId"],
             date=post["date"]
-        ) for post in res.json()["tistory"]["item"]["posts"]
+        )
+        for post in res.json()["tistory"]["item"]["posts"]
     ]
 
 
@@ -184,7 +228,8 @@ def get_categories(access_token: str) -> list[BlogCategory]:
             name=category["name"],
             parent_id=category["parent"],
             label=category["label"]
-        ) for category in res.json()["tistory"]["item"]["categories"]
+        )
+        for category in res.json()["tistory"]["item"]["categories"]
     ]
 
 
@@ -202,7 +247,9 @@ def get_total_count(access_token: str) -> int:
 
 def make_my_posts(posts: list[BlogPost], categories: list[BlogCategory]) -> list[MyPost]:
     def get_main_sub_category(category_id: str) -> (str, str):
-        category = [c for c in categories if c.id == category_id][0]
+        cc = [c for c in categories if c.id == category_id]
+        category = cc[0]
+
         if category.parent_id:
             parent_category = [c for c in categories if c.id == category.parent_id][0]
             return parent_category.name, category.name
@@ -219,42 +266,16 @@ def make_my_posts(posts: list[BlogPost], categories: list[BlogCategory]) -> list
 
 
 @callback(
-    Output('tistory_url', 'href'),
+    Output('location_tistory', 'href', allow_duplicate=True),
     Input('update_data', 'n_clicks'),
-    State('tistory_url', 'href')
+    prevent_initial_call=True
 )
-def redirect_to_auth(n_clicks, href) -> str:
-    match ctx.triggered_id:
-        case 'update_data':
-            params = {
-                "client_id": APP_ID,
-                "redirect_uri": CALLBACK_URL,
-                "response_type": "code"
-            }
+def redirect_to_auth(n_clicks) -> str:
+    params = {
+        "client_id": APP_ID,
+        "redirect_uri": CALLBACK_URL,
+        "response_type": "code"
+    }
 
-            url: str = "https://www.tistory.com/oauth/authorize?" + parse.urlencode(params, encoding='utf-8')
-            return url
-
-        # 브라우저 URL 로 직접 입력된 경우 triggered_id 값이 None 이다.
-        case _:
-            query_string = parse.urlparse(href).query
-            path_string = parse.urlparse(href).path
-            dict_result = parse.parse_qs(query_string)
-            codes = dict_result.get("code", [])
-
-            if codes and 'tistory' in path_string:
-                code = codes[0]
-                access_token = _get_access_token(code)
-                logger.info(f"{access_token=}")
-                total = get_total_count(access_token)
-                logger.info(f"{total=}")
-
-                all_posts: list[BlogPost] = get_all_posts(access_token, total)
-                categories: list[BlogCategory] = get_categories(access_token)
-                my_posts = make_my_posts(all_posts, categories)
-
-                global post_df
-                post_df = pd.DataFrame([my_post.model_dump() for my_post in my_posts])
-                # post_df.to_csv('data/post_df.csv')
-
-                return CALLBACK_URL
+    url: str = "https://www.tistory.com/oauth/authorize?" + parse.urlencode(params, encoding='utf-8')
+    return url
