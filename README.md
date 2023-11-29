@@ -4,6 +4,8 @@ plotly dash 를 활용해 admin page 를 개발해 본다.
 
 
 ## 실행 환경 만들기
+* python version: `3.10.x`
+ 
 #### Local (Dev)
 * `.env_dev` 파일을 `.env` 이름으로 복사
 * `.env` 파일을 열어 본인 `tistory` 의 `APP_ID`,`SECRET_KEY` 등의 정보를 넣는다.
@@ -42,5 +44,5 @@ plotly dash 를 활용해 admin page 를 개발해 본다.
   ```
 
 * 배포후 https://fly.io/dashboard 에서 app 확인이 가능하다.
-* 배포시 에러가 발생한다면 모니터링 페이지에서 로그 확인이 가능하다. 예) https://fly.io/apps/wefree-tistory/monitoring
+* 배포시 에러가 발생 한다면 모니터링 페이지에서 로그 확인이 가능하다. 예) https://fly.io/apps/wefree-tistory/monitoring
 * 한번 배포가 되면 이후에는 `fly launch` 없이 바로 `fly deploy` 로 배포 가능하다. 

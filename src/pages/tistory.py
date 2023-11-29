@@ -48,6 +48,7 @@ class BlogCategory(BaseModel):
 dash.register_page(__name__, name='Tistory', order=2, is_menu=True, icon='fas fa-marker me-2')
 
 # MyPost as rows
+# global variable 의 변경은 모든 USER 의 UI 에 영향을 줌
 post_df: pd.DataFrame = pd.read_csv('data/post_df.csv', parse_dates=['date'])
 
 
@@ -73,6 +74,22 @@ def layout(code: str = '') -> html.Div:
             build_table(post_df)
         ]
     )
+
+
+@callback(
+    Output('location_tistory', 'href', allow_duplicate=True),
+    Input('update_data', 'n_clicks'),
+    prevent_initial_call=True
+)
+def redirect_to_auth(n_clicks) -> str:
+    params = {
+        "client_id": APP_ID,
+        "redirect_uri": CALLBACK_URL,
+        "response_type": "code"
+    }
+
+    url: str = "https://www.tistory.com/oauth/authorize?" + parse.urlencode(params, encoding='utf-8')
+    return url
 
 
 def build_daily_fig(df: pd.DataFrame) -> Figure:
@@ -263,19 +280,3 @@ def make_my_posts(posts: list[BlogPost], categories: list[BlogCategory]) -> list
         my_posts.append(my_post)
 
     return my_posts
-
-
-@callback(
-    Output('location_tistory', 'href', allow_duplicate=True),
-    Input('update_data', 'n_clicks'),
-    prevent_initial_call=True
-)
-def redirect_to_auth(n_clicks) -> str:
-    params = {
-        "client_id": APP_ID,
-        "redirect_uri": CALLBACK_URL,
-        "response_type": "code"
-    }
-
-    url: str = "https://www.tistory.com/oauth/authorize?" + parse.urlencode(params, encoding='utf-8')
-    return url
