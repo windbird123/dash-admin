@@ -2,6 +2,8 @@
 plotly dash 를 활용해 admin page 를 개발해 본다.
 상세한 내용은 https://wefree.tistory.com/316 참고한다.
 
+## 데모 페이지
+https://wefree-tistory.fly.dev/
 
 ## 실행 환경 만들기
 * python version: `3.10.x`
