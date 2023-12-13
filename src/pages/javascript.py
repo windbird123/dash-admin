@@ -44,7 +44,7 @@ def layout() -> html.Div:
     )
 
 
-# 최초 한번만 호출되는 callback 로 Sortable 설정
+# 최초 한번만 호출되는 callback 으로 Sortable 설정한다.
 clientside_callback(
     '''
     (value) => {
@@ -55,7 +55,7 @@ clientside_callback(
         store: {
           get: (sortable) => {
             let order = sessionStorage.getItem(sortable.options.group.name);
-            return JSON.parse(order) ;
+            return JSON.parse(order);
           },
           set: (sortable) => {
             let order = sortable.toArray();
