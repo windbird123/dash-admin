@@ -11,7 +11,7 @@ description = html.Div([
     html.Span(" 을 Dash 에서 사용해 본다."),
     html.Ul(
         [
-            html.Li("아래 5개 항목은 drag & drop 으로 순서를 변경할 수 있다. 순서 변경 즉시 Sorted 값도 갱신된다."),
+            html.Li("아래 5개 항목은 drag & drop 으로 순서를 변경할 수 있다. Update 버튼을 누르면 Sorted 값이 갱신된다."),
             html.Li([
                 "상세한 개발 설명은 블로그 글을 참고 한다. ",
                 html.A("https://wefree.tistory.com/335", href="https://wefree.tistory.com/335", target="_blank")
@@ -29,6 +29,7 @@ def layout() -> html.Div:
             description,
             dcc.Store(id='state', storage_type='memory', data=["1:A", "2:B", "3:C", "4:D", "5:E"]),
             html.Button("Sync", id="hidden_sync_button", hidden=True),
+            html.Button("Update", id="update_button"),
             html.Div(id="display_result"),
             dbc.ListGroup(
                 [
@@ -86,7 +87,7 @@ clientside_callback(
 
 @callback(
     Output("display_result", "children"),
-    Input("state", "modified_timestamp"),
+    Input("update_button", "n_clicks"),
     State("state", "data"),
 )
 def show_result(_, state_data):
