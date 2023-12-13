@@ -7,7 +7,7 @@ from dash import Input, Output, dcc, html
 from dash import callback, ctx, ALL
 from pydantic import BaseModel
 
-dash.register_page(__name__, name='Resume', order=1, is_menu=True, icon='fas fa-user me-2')
+dash.register_page(__name__, name='Resume', order=1, is_menu=True, icon='fa-solid fa-user me-2')
 
 
 class Tech(Enum):

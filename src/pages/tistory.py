@@ -45,7 +45,7 @@ class BlogCategory(BaseModel):
     label: str
 
 
-dash.register_page(__name__, name='Tistory', order=2, is_menu=True, icon='fas fa-marker me-2')
+dash.register_page(__name__, name='Tistory', order=2, is_menu=True, icon='fa-solid fa-marker me-2')
 
 # MyPost as rows
 # global variable 의 변경은 모든 USER 의 UI 에 영향을 줌

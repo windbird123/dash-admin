@@ -3,7 +3,7 @@ from urllib import parse
 import dash
 from dash import html, dcc, callback, Input, Output
 
-dash.register_page(__name__, name='Calendar', order=3, is_menu=True, icon='fas fa-calendar-alt me-2')
+dash.register_page(__name__, name='Calendar', order=4, is_menu=True, icon='fa-solid fa-calendar-alt me-2')
 
 
 def layout(city: str = 'Montreal') -> html.Div:
