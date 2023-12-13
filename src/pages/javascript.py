@@ -11,7 +11,7 @@ description = html.Div([
     html.Span(" 을 Dash 에서 사용해 본다."),
     html.Ul(
         [
-            html.Li("아래 5개 항목은 drag & drop 으로 순서를 변경할 수 있다. Update 버튼을 누르면 Sorted 값이 갱신된다."),
+            html.Li("아래 5개 항목은 drag & drop 으로 순서를 변경할 수 있다. 순서 변경 후 Update 버튼을 누르면 Sorted 값이 갱신된다."),
             html.Li([
                 "상세한 개발 설명은 블로그 글을 참고 한다. ",
                 html.A("https://wefree.tistory.com/335", href="https://wefree.tistory.com/335", target="_blank")
