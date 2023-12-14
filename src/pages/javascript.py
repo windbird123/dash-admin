@@ -2,7 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html
 from dash import State, callback
-from dash import clientside_callback
+from dash import clientside_callback, ClientsideFunction
 
 dash.register_page(__name__, name='Javascript', order=3, is_menu=True, icon='fa-solid fa-code me-2')
 
@@ -46,43 +46,41 @@ def layout() -> html.Div:
 
 
 # 최초 한번만 호출되는 callback 으로 Sortable 설정한다.
+# assets/scripts/clientside.js 의 createSortable() 호출
 clientside_callback(
-    '''
-    (value) => {
-       Sortable.create(items, {
-        animation: 150,
-        group: "state",
-        dataIdAttr: "id",
-        store: {
-          get: (sortable) => {
-            let order = sessionStorage.getItem(sortable.options.group.name);
-            return JSON.parse(order);
-          },
-          set: (sortable) => {
-            let order = sortable.toArray();
-            sessionStorage.setItem(sortable.options.group.name, JSON.stringify(order)); 
-            document.getElementById("hidden_sync_button").click();
-          }
-        }
-      }); 
-    }
-    ''',
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='createSortable'
+    ),
     Output("hidden_sync_button", "style"),
     Input("hidden_sync_button", "title"),
 )
 
 # drag&drop 으로 변경이 발생시 sessionStorage 에 저장된 값을 dcc.Store(id=state) 에 저장
+# assets/scripts/clientside.js 의 syncFunction() 호출
 clientside_callback(
-    '''
-    (n_clicks) => {
-       let json = sessionStorage.getItem("state");
-       return JSON.parse(json);
-    }
-    ''',
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='syncFunction'
+    ),
     Output("state", "data"),
     Input("hidden_sync_button", "n_clicks"),
     prevent_initial_call=True
 )
+
+
+# javascript 파일 대신에 아래처럼 작성하는 것도 가능하다.
+# clientside_callback(
+#     '''
+#     (n_clicks) => {
+#        let json = sessionStorage.getItem("state");
+#        return JSON.parse(json);
+#     }
+#     ''',
+#     Output("state", "data"),
+#     Input("hidden_sync_button", "n_clicks"),
+#     prevent_initial_call=True
+# )
 
 
 @callback(

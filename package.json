@@ -1,0 +1,7 @@
+{
+  "name": "dash-admin",
+  "version": "1.0.0",
+  "dependencies": {
+    "sortablejs": "^1.15.1"
+  }
+}
