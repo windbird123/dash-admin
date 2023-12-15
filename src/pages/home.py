@@ -24,7 +24,7 @@ dash.register_page(__name__, path='/', name='Home', order=0, is_menu=True, icon=
 def layout() -> html.Div:
     return html.Div(
         [
-            html.H1("개인 홈페이지", id='home'),
+            html.H1("Plotly dash PoC"),
             html.Ul(
                 [
                     html.Li(html.A("어떻게 개발했나? 설명 보기", href='https://wefree.tistory.com/316', target='_blank')),

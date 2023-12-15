@@ -4,7 +4,7 @@ from dash import Input, Output, dcc, html
 from dash import State, callback
 from dash import clientside_callback, ClientsideFunction
 
-dash.register_page(__name__, name='Javascript', order=3, is_menu=True, icon='fa-solid fa-code me-2')
+dash.register_page(__name__, name='Dev: javascript', order=3, is_menu=True, icon='fa-solid fa-code me-2')
 
 description = html.Div([
     html.A("Javascript sortable library", href="https://github.com/SortableJS/Sortable", target="_blank"),
