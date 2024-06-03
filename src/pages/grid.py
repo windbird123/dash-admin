@@ -11,6 +11,7 @@ def layout(input: str = '') -> html.Div:
     description = """
     * `dbc.Row()`, `dbc.Col()` 을 이용해 화면을 2개 컬럼으로 분할했다.
     * `보기` 버튼을 누르면, 입력한 내용이 오른쪽 컬럼에 출력된다.
+    * 간단한 경우  style={"width": "100%"} 를 활용한다.
     """
 
     return html.Div([
