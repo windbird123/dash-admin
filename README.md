@@ -22,6 +22,7 @@ https://wefree-tistory.fly.dev/
   * order (int): 노출 순서 (0 이 가장 높음)
   * is_menu (bool): sidebar 메뉴에 노출할지 여부
   * icon (str): sidebar 메뉴 노출시 사용할 아이콘 (참고: https://fontawesome.com/icons)
+    * free: https://fontawesome.com/search?o=r&m=free
 
 
 ## fly.io 배포
